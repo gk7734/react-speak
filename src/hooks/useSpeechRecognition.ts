@@ -1,36 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-
-interface SpeechRecognitionErrorEvent extends Event {
-  error: string;
-  message?: string;
-}
-
-interface SpeechRecognitionEvent extends Event {
-  resultIndex: number;
-  results: SpeechRecognitionResultList;
-}
-
-interface SpeechRecognitionResult {
-  transcript: string;
-  listening: boolean;
-  startListening: () => void;
-  stopListening: () => void;
-  resetTranscript: () => void;
-  browserSupportsSpeechRecognition: boolean;
-  interimTranscript: string;
-}
-
-interface SpeechRecognitionOptions {
-  continuous?: boolean;
-  interimResults?: boolean;
-  language?: string;
-}
+import {SpeechRecognitionErrorEvent, SpeechRecognitionOptions} from "../types/speechRecognition";
 
 function useSpeechRecognition({
                                 continuous = true,
                                 interimResults = true,
                                 language = 'ko-KR'
-                              }: SpeechRecognitionOptions = {}): SpeechRecognitionResult {
+                              }: SpeechRecognitionOptions = {}): {
+  listening: boolean;
+  transcript: string;
+  startListening: () => void;
+  interimTranscript: string;
+  resetTranscript: () => void;
+  stopListening: () => void;
+  browserSupportsSpeechRecognition: boolean
+} {
   const [transcript, setTranscript] = useState<string>('');
   const [interimTranscript, setInterimTranscript] = useState<string>('');
   const [listening, setListening] = useState<boolean>(false);
@@ -137,7 +120,6 @@ function useSpeechRecognition({
     setInterimTranscript('');
   }, []);
 
-  // 컴포넌트 언마운트 시 정리
   useEffect(() => {
     return () => {
       if (recognitionRef.current && listening) {
